@@ -1,17 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Mi Página Web con Mapas</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <meta charset="UTF-8">
+    <title>Mi Página Web </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
+
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            padding: 1em;
+        }
+
+        nav {
+            background: #1e3a8a;
+            color: white;
+            padding: 1em;
+            border-radius: 8px;
+            margin-bottom: 1.5em;
+            display: flex;
+            gap: 1em;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #a5b4fc;
+        }
+
+        h1, h2 {
+            color: #1e40af;
+            margin-bottom: 0.5em;
+        }
+
+        .map-section, .image-section {
+            margin-bottom: 2em;
+            background: white;
+            padding: 1em;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .map-section:hover {
+            transform: scale(1.01);
+        }
+
         #map, #mapaEstado, #mapaCDMX {
             height: 300px;
-            margin: 1em 0;
+            border-radius: 8px;
+            margin-top: 0.5em;
+        }
+
+        #imageToggleBtn {
+            background-color: #1e40af;
+            color: white;
+            padding: 0.5em 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        #imageToggleBtn:hover {
+            background-color: #374fcf;
+        }
+
+        #imageContainer {
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .image-container img {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            margin: 0.5em;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1em;
+            justify-content: center;
         }
     </style>
 </head>
@@ -21,33 +111,63 @@
         <a href="#">Inicio</a>
         <a href="#">Blog</a>
     </nav> 
-    
+
     <h1>Imágenes no Encontradas</h1>
-    <p id="imagenes-no-encontradas"></p>
+    <p id="imagenes-no-encontradas">Aquí aparecerán los resultados de imágenes que no se pudieron mostrar.</p>
 
     <div id="data-container"></div>
 
+    <div class="image-section">
+        <button id="imageToggleBtn">Mostrar Imágenes</button>
+        <div id="imageContainer" class="image-container">
+            <!-- Aquí puedes poner tus imágenes -->
+            <img src="https://via.placeholder.com/400x250?text=Imagen+1" alt="Imagen 1">
+            <img src="https://via.placeholder.com/400x250?text=Imagen+2" alt="Imagen 2">
+            <img src="https://via.placeholder.com/400x250?text=Imagen+3" alt="Imagen 3">
+        </div>
+    </div>
+
     <h2>Mapas Interactivos</h2>
-    <p>MAPA GENERAL</p>
-    <div id="map"></div>
 
-    <p>MAPA DEL ESTADO DE VERACRUZ</p>
-    <div id="mapaEstado"></div>
+    <div class="map-section">
+        <p><strong>MAPA GENERAL</strong></p>
+        <div id="map"></div>
+    </div>
 
-    <p>MAPA DE LA  CDMX </p>
-    <div id="mapaCDMX"></div>
+    <div class="map-section">
+        <p><strong>MAPA DEL ESTADO DE VERACRUZ</strong></p>
+        <div id="mapaEstado"></div>
+    </div>
+
+    <div class="map-section">
+        <p><strong>MAPA DE LA CDMX</strong></p>
+        <div id="mapaCDMX"></div>
+    </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <script src="script.js"></script> <!-- Tu script personalizado si lo tienes -->
-
     <script>
+        // Mostrar/Ocultar imágenes
+        const toggleBtn = document.getElementById("imageToggleBtn");
+        const imageContainer = document.getElementById("imageContainer");
+
+        toggleBtn.addEventListener("click", () => {
+            if (imageContainer.style.display === "none" || imageContainer.style.display === "") {
+                imageContainer.style.display = "flex";
+                toggleBtn.textContent = "Ocultar Imágenes";
+            } else {
+                imageContainer.style.display = "none";
+                toggleBtn.textContent = "Mostrar Imágenes";
+            }
+        });
+
+        // Función para crear mapas
         function crearMapaEdo(CVE_ENT, contenedor){
             const map = L.map(contenedor);
 
-            const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
@@ -55,33 +175,33 @@
             fetch('https://geografia.mx/assets/geojson/estados.json')
                 .then(response => response.json())
                 .then(data => {
-                    const singleFeature = L.geoJSON(data, {
-                        filter: feature => feature.properties.CVE_ENT === CVE_ENT,
+                    const feature = L.geoJSON(data, {
+                        filter: f => f.properties.CVE_ENT === CVE_ENT,
                         style: {
-                            color: 'red',
-                            weight: 2
+                            color: '#ef4444',
+                            weight: 2,
+                            fillOpacity: 0.1
                         }
                     });
 
-                    singleFeature.addTo(map);
-                    map.fitBounds(singleFeature.getBounds());
+                    feature.addTo(map);
+                    map.fitBounds(feature.getBounds());
                 })
                 .catch(error => {
                     console.error('Error al cargar el archivo GeoJSON:', error);
                 });
         }
 
-        // Mapa general inicial
-        let map = L.map('map').setView([19.2866, -99.6770], 13);
+        // Mapa general
+        let map = L.map('map').setView([19.2866, -99.6770], 6);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
-        // Al cargar la página
         window.onload = function() {
-            crearMapaEdo("30", "mapaEstado");
-            crearMapaEdo("09", "mapaCDMX");
+            crearMapaEdo("30", "mapaEstado"); // Veracruz
+            crearMapaEdo("09", "mapaCDMX");   // CDMX
         };
     </script>
 </body>
